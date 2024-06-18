@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="bg-white p-8 rounded shadow-md max-w-md w-full">
+        <h2 class="text-3xl font-bold mb-4 text-center">Регистрация</h2>
+        <div id="registerError" class="text-red-500 text-center mb-4"></div>
+        <form id="registerForm" class="space-y-4">
+            <div>
+                <label for="username" class="block mb-1">Имя</label>
+                <input type="text" id="username" name="username" placeholder="Имя пользователя"
+                       class="block w-full px-4 py-2 rounded bg-gray-200 focus:outline-none">
+            </div>
+            <div>
+                <label for="email" class="block mb-1">Email</label>
+                <input type="email" id="email" name="email" placeholder="Email"
+                       class="block w-full px-4 py-2 rounded bg-gray-200 focus:outline-none">
+            </div>
+            <div>
+                <label for="telephone" class="block mb-1">Телефон</label>
+                <input type="tel" id="telephone" name="telephone" placeholder="+7 (777) 111-22-33"
+                       class="block w-full px-4 py-2 rounded bg-gray-200 focus:outline-none">
+                <div id="telError" class="text-red-500 text-center mb-4"></div>
+            </div>
+            <div>
+                <label for="password" class="block mb-1">Пароль</label>
+                <input type="password" id="password" name="password" placeholder="Пароль"
+                       class="block w-full px-4 py-2 rounded bg-gray-200 focus:outline-none">
+                <div id="passError" class="text-red-500 text-center mb-4"></div>
+            </div>
+            <button type="submit"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded block w-full text-center">
+                Зарегистрироваться
+            </button>
+        </form>
+        <p class="text-center mt-4">Уже зарегистрированы? <a href="login.html" class="text-blue-500 hover:underline">Войдите здесь</a>.</p>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#registerForm').submit(function(e) {
+            e.preventDefault();
+
+            var username = $('#username').val();
+            var email = $('#email').val();
+            var telephone = $('#telephone').val();
+            var password = $('#password').val();
+
+            if (username === '' || email === '' || telephone === '' || password === '') {
+                $('#registerError').text('Пожалуйста, заполните все поля');
+                return false;
+            }
+
+            if (telephone.length < 7) {
+                $('#telError').text('Номер телефона должен содержать не менее 7 символов');
+                return false;
+            }
+
+            var phonePattern = /^(?:\+7|8)?[\s-]?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}$/;
+            if (!phonePattern.test(telephone)) {
+                $('#telError').text('Неправильный формат номера телефона. Ожидается: +7 (777) 111-22-33');
+                return false;
+            }
+
+            if (password.length < 7) {
+                $('#passError').text('Пароль должен быть минимум 8 символов');
+                return false;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: 'register.php',
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        window.location.href = response.redirect;
+                    } else {
+                        $('#registerError').text(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    $('#registerError').text('Ошибка при обработке запроса. Пожалуйста, попробуйте еще раз.');
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
